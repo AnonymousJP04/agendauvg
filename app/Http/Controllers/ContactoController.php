@@ -22,6 +22,7 @@ class ContactoController extends Controller
     public function create()
     {
         //
+        return view('contactos.create');
     }
 
     /**
@@ -29,7 +30,16 @@ class ContactoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        //Validar datos
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'apellido' => 'required|string|max:255',
+            'telefono' => 'required|string|max:8',
+            'email' => 'required|email|max:100',
+        ]);
+
+        Contacto::create($request->all());
+        return redirect()->route('contactos.index')->with('success', 'Contacto creado con éxito.');
     }
 
     /**
@@ -46,6 +56,11 @@ class ContactoController extends Controller
     public function edit(Contacto $contacto)
     {
         //
+        $contacto = Contacto::find($contacto->id); // Obtener el contacto por su ID
+        if (!$contacto) {
+            return redirect()->route('contactos.index')->with('error', 'Contacto no encontrado.');
+        }
+        return view('contactos.edit', compact('contacto')); // Pasar el contacto a la vista de edición
     }
 
     /**
@@ -54,6 +69,16 @@ class ContactoController extends Controller
     public function update(Request $request, Contacto $contacto)
     {
         //
+        // Validar datos
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'apellido' => 'required|string|max:255',
+            'telefono' => 'required|string|max:8',
+            'email' => 'required|email|max:100',
+        ]);
+        // Actualizar el contacto
+        $contacto->update($request->all()); // Actualizar el contacto con los datos validados
+        return redirect()->route('contactos.index')->with('success', 'Contacto actualizado con éxito.'); // Redirigir a la lista de contactos con un mensaje de éxito
     }
 
     /**
@@ -62,5 +87,11 @@ class ContactoController extends Controller
     public function destroy(Contacto $contacto)
     {
         //
+        $contacto = Contacto::find($contacto->id); // Obtener el contacto por su ID
+        if (!$contacto) {
+            return redirect()->route('contactos.index')->with('error', 'Contacto no encontrado.');
+        }
+        $contacto->destroy($contacto->id); // Eliminar el contacto de la base de datos mediante id
+        return redirect()->route('contactos.index')->with('success', 'Contacto eliminado con éxito.'); // Redirigir a la lista de contactos con un mensaje de éxito
     }
 }
